@@ -1,0 +1,31 @@
+* Synclpy
+
+`Synclpy` is an opinionated Python-based literate programming (LP) tool that manages a bidirectional synchronization between literate files (my preference being [[http://orgmode.org][org-mode]]) with embedded source blocks and the *tangled* source files. In other words, synclpy tangles literate files into their source code representation, then monitors for changes in both the literate files *and* the source files, modifying the /opposite/ file if a change occurs.
+
+In general, literate programming is a mind set where the programmer attempts to compose a narrative that documents the work in a logical manner (not necessarily subject to the constraints of the programming language or the compiler). The primary purpose of the documentation should be to convey the purpose of the software---why was it written---as well as the what and how. Done right, it should be fairly easy for someone to pick up the generated "literary work" (may be online as HTML, PDF, text, etc.) and learn what they need to in order to understand the code (use it, hack it, fix it). The code, therefore, along with test-based examples, should effectively be embedded in the documentation. 
+
+In the real world, literate programming is not very easy to do. My goal is for `synclpy` to help make it a little easier, with a lower barrier to entry. While it's possible to import existing source code into a synclpy system, it's really designed to start a piece of software from the beginning. However, generating documentation with synclpy is a reasonable use of the code as well.
+** Principles (going forward)
+To enable literate programming to "catch on," we need to make sure the process has minimal impact on developer tools, since just about all of them are *not* tailored to LP. Which means that although we should be developing the program through the literate files (so we can make sure to keep the narrative up-to-date), tools, debuggers, and editors need source code. Some tools extract documentation straight from the source code (think javadoc, doxygen, marginalia, codox, haddock, etc), and this is very useful. In fact, nothing in synclpy prevents you from using these tools as well. But one must consider that the structure of the source code (even in a "well-designed" project) does not necessarily tell an obvious narrative.
+
+#+begin_comment
+However, to minimize the transition effort, synclpy can also operate in this manner: synclpy can be configured to generate literate files from source code. In this mode, the source files will generally dictate the order of the exposition. All the literate documentation and markup will be commented in the source language. What is the drawback of this approach? 
+#+end_comment
+
+Using synclpy, the developer can switch more or less effortlessly between the representations, since the code and literate files are always in sync. So, for example, when a compiler error or exception occurs in a function, the developer can fix the code in place in the source, and know that the literate file is properly updated. Using a capable editor, it should also be possible to jump from the source to the literate file, and just make the edits there.
+
+Finally, synclpy and LP in general can be used to experiment with a "layer-based" approach to software development (ref: akkartik), where complexity is added incrementally to the code, and controllable through a very simple inclusion and filtering method, so that various "curated" versions of the code can be produced and examined. This naturally brings up questions about how refactoring fits into the equation, and is up for debate.
+
+** Problems
+*** TODO Nested code blocks
+*** TODO Multiple file management
+*** TODO Block naming
+*** TODO Literate editor/Source editor
+Synclpy should be independent of your literate file editor (and the documentation language) and your source code editor. However, this brings up the obvious question about how to best integrate these possibly separate components. 
+
+While I am biased on the matter, I'm not sure there's any doubt that Emacs provides the best integration between simultaneous source and literate file editing at the time this is written. Unfortunately, not everyone wants to use Emacs. Additional tooling may be necessary, and perhaps with the evoluation of tools such as synclpy, this may occur. 
+*** TODO Layer-based editing and refactoring
+* Examples
+
+* Development
+As you may have guessed, synclpy has been designed using exactly this literate programming methodology, and after some initial bootstrapping, was used to develop itself. The program was "organically grown," from the ground up, and that process is described in the following sections. 
