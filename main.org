@@ -1,0 +1,109 @@
+* Computing the block difference
+Given a pair of corresponding files, the most commonly performed task in this program is computing the difference between block sets. Assuming both sets of files have been generated (this occurs at the user level, and in another part of the program), and given that both the lit files and the source files have been parsed for blocks, we need to compute the changes. 
+
+At this point, we'll try to come up with the simplest solution possible. We'll store the blocks in a dictionary using the block name as the key, and the block data as the value. Since blocks can be hierarchical, we can simply construct their names in a hierarchical fashion, like =compute-bar#loop-over-foos=. Having the blocks in a flat namespace should help during comparison.
+
+In the following function we assume the blocks are already in this form. The important task is then to associate matching blocks and determine if they have any difference. Another tricky aspect is detecting omissions on one side or the other. However, in this function, we can't know whether they really were created or deleted.
+#+NAME: compute-difference
+#+BEGIN_SRC python
+def compute_difference(lit_blocks, src_blocks):
+    """ 
+    """
+    changed = {}
+    created_or_deleted = {}
+    for k,lb in lit_blocks.iteritems():
+        if src_blocks.has_key(k):
+            # matching key; check to see if things have changed
+            sb = src_blocks[k]
+            if block_changed(lb,sb):
+                changed[k] = (lb,sb)
+        else:
+            # no match, means a block was created on the Lit side or deleted on
+            # the Src side
+            created_or_deleted[k] = (lb,None)
+    for k,sb in src_blocks.iteritems():
+        if not lit_blocks.has_key(k):
+            # no match, created on Src side or deleted on Lit side
+            created_or_deleted[k] = (None,sb)
+    return changed, created_or_deleted
+#+END_SRC
+
+Before we can test whether or not this works, we need to write the =block_changed= function. We write this function in the next section.
+** When has a block changed?
+A block has changed when the text is different. However, we must normalize the text in order to better compare. Most language source files prefer a consistent indentation (not sure how we'll do this), so the text in one block may not be directly comparable without this normalization. 
+
+Our first attempt at normalization simply strips the whitespace from the front and back of the string representing the block text.
+#+NAME: normalize-block
+#+BEGIN_SRC python
+def normalize_block_text(txt):
+    return txt.strip()
+#+END_SRC
+
+Now, we can write our block changed method.
+
+#+NAME: block-changed
+#+BEGIN_SRC python
+def block_changed(a_blk, b_blk):
+    return normalize_block_text(a_blk.text) \
+      == normalize_block_text(b_blk.text)
+#+END_SRC
+** What is a block?
+So far, we've been talking about blocks, and showing code that uses them, but we haven't yet defined them. At this point, let's define a simple block class that can act as our working definition. It is a simple class, with simply a text field.
+
+#+NAME: block-class
+#+BEGIN_SRC python
+class SourceBlock(object):
+    def __init__(self, text):
+        self.text = text
+        # __source-block-init__
+    
+    # __source-block-methods__
+#+END_SRC
+** Does it work?
+We now have all the pieces to write a simple test function. We'll create a dummy set of lit blocks and source blocks, then make changes to make the difference computation works. 
+
+
+#+NAME: test-compute-difference
+#+BEGIN_SRC python
+# __test includes__
+
+class TestComputeDifference(ut.TestCase):
+    def setUp():
+        self.lit_blocks = {"a": SourceBlock("Hello World"),
+                           "b": SourceBlock("  I am indented"),
+                           "c": SourceBlock("Extra new lines\n\n")}
+        self.src_blocks = {"a": SourceBlock("Hello World"),
+                           "b": SourceBlock("I am indented"),
+                           "c": SourceBlock("Extra new lines")}
+        
+    def test_no_change(self):
+        changed, created_or_deleted = \
+          compute_difference(self.lit_blocks, self.src_blocks)
+        self.assertEqual(len(changed),0)
+        self.assertEqual(len(created_or_deleted),0)
+            
+#+END_SRC
+
+
+* Main
+We start with the basic Python file structure; nothing more than your run-of-the-mill hello world program.
+
+#+name: main
+#+BEGIN_SRC python :tangle src/synclpy/main.py :mkdirp yes :shebang "#!/usr/bin/env python"
+# __imports__
+
+# __functions__
+
+def main():
+    # __parse command line arguments__
+    # __load target files__
+    # __define change handlers__
+    # __watch the files__
+    return 0
+
+if __name__ == "__main__":
+    main()
+#+END_SRC
+
+Exporting this code (initially using Emacs org-babel features), allows us to run it. Unfortunately, it doesn't do anything yet. 
+* 

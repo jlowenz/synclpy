@@ -1,6 +1,8 @@
 * Synclpy
 
-`Synclpy` is an opinionated Python-based literate programming (LP) tool that manages a bidirectional synchronization between literate files (my preference being [[http://orgmode.org][org-mode]]) with embedded source blocks and the *tangled* source files. In other words, synclpy tangles literate files into their source code representation, then monitors for changes in both the literate files *and* the source files, modifying the /opposite/ file if a change occurs.
+A manifesto.
+
+`Synclpy` is[fn:1] an opinionated Python-based literate programming (LP) tool that manages a bidirectional synchronization between literate files (my preference being [[http://orgmode.org][org-mode]]) with embedded source blocks and the *tangled* source files. In other words, synclpy tangles literate files into their source code representation, then monitors for changes in both the literate files *and* the source files, modifying the /opposite/ file if a change occurs.
 
 In general, literate programming is a mind set where the programmer attempts to compose a narrative that documents the work in a logical manner (not necessarily subject to the constraints of the programming language or the compiler). The primary purpose of the documentation should be to convey the purpose of the software---why was it written---as well as the what and how. Done right, it should be fairly easy for someone to pick up the generated "literary work" (may be online as HTML, PDF, text, etc.) and learn what they need to in order to understand the code (use it, hack it, fix it). The code, therefore, along with test-based examples, should effectively be embedded in the documentation. 
 
@@ -14,11 +16,25 @@ However, to minimize the transition effort, synclpy can also operate in this man
 
 Using synclpy, the developer can switch more or less effortlessly between the representations, since the code and literate files are always in sync. So, for example, when a compiler error or exception occurs in a function, the developer can fix the code in place in the source, and know that the literate file is properly updated. Using a capable editor, it should also be possible to jump from the source to the literate file, and just make the edits there.
 
-Finally, synclpy and LP in general can be used to experiment with a "layer-based" approach to software development (ref: akkartik), where complexity is added incrementally to the code, and controllable through a very simple inclusion and filtering method, so that various "curated" versions of the code can be produced and examined. This naturally brings up questions about how refactoring fits into the equation, and is up for debate.
+Synclpy and LP in general can be used to experiment with a "layer-based" approach to software development (ref: akkartik), where complexity is added incrementally to the code, and controllable through a very simple inclusion and filtering method, so that various "curated" versions of the code can be produced and examined. This naturally brings up questions about how refactoring fits into the equation, and is up for debate. Also, the layer approaches may not be particularly interesting until some initial capability is developed. 
 
+Synclpy enables a form of test-driven development, but is not defined by it. Tests may be associated with a particular block, and may even be defined before the block itself. During development, the test will be automatically run and reported by synclpy, giving almost instantaneous feedback about the state of the code.
+
+Synclpy tries to support an organic approach to software development, which is hard to fit in to many development environments, so a lot of onus is still on the developer to exploit existing frameworks for making this an easier task. The development of this software will provide one example (and likely not the best).
+** Operation
+Synclpy is meant to run in a daemon-like fashion, always on during project development, monitoring files, creating changes where needed, and running tests for components when they change. The program must load the state of the project when started the first time, but then maintains state as it runs and only processes the incremental changes. These change propagations are triggered when filesystem notifications are received on the source code or the literate file. 
+
+So, the core operations of synclpy are file monitoring, file parsing, tangling (i.e. extracting code snippets from the documentation and generating standalone files), and difference detection. 
+
+Code Blocks are the main currency here. However, synclpy supports hierarchical blocks (e.g. blocks that contain references to other blocks) as well as block concatenation directives (e.g. before-block and after-block). 
+
+However, moving code blocks around willy-nilly (different files or modules, for example) does not work for most languages. While synclpy supports reordering code to best support the exposition, the usual rules apply. We advocate doing the simplest thing possible (at least at the beginning): write your story, picking out the most interesting components to describe. Include examples/tests to verify that your code chunks work. Synclpy will generate the necessary files, run the tests, and eventually allow you to run the code. 
 ** Problems
+*** TODO Rewriting existing code
 *** TODO Nested code blocks
 *** TODO Multiple file management
+**** TODO Language-specific modules
+How do we support modules, namespaces, multiple output files, build systems, etc.?
 *** TODO Block naming
 *** TODO Literate editor/Source editor
 Synclpy should be independent of your literate file editor (and the documentation language) and your source code editor. However, this brings up the obvious question about how to best integrate these possibly separate components. 
@@ -28,4 +44,10 @@ While I am biased on the matter, I'm not sure there's any doubt that Emacs provi
 * Examples
 
 * Development
-As you may have guessed, synclpy has been designed using exactly this literate programming methodology, and after some initial bootstrapping, was used to develop itself. The program was "organically grown," from the ground up, and that process is described in the following sections. 
+As you may have guessed, synclpy has been designed using exactly this literate programming methodology, and after some initial bootstrapping, was used to develop itself. The program was "organically grown," from the ground up, and that process is described in the following sections.
+
+#+include: main.org
+
+* Footnotes
+
+[fn:1] Or, more accurately, will be...
